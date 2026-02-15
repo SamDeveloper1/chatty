@@ -8,6 +8,8 @@ const generateTokenAndSetCookie = (userId, res)=>{
         httpOnly: true,
         sameSite: "strict",
         secure: process.env.NODE_ENV!="development"
-    })
+    });
+    return token;
+
 }
 export default generateTokenAndSetCookie;

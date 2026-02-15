@@ -3,25 +3,35 @@ import bcrypt from "bcryptjs";
 import generateTokenAndSetCookie from "../utils/generateToken.js";
 
 export const signup = async (req, res) => {
+const {fullName,email, password} = req.body;
+
   try {
-    const { fullName, username, password, confirmPassword, gender } = req.body;
-    if (password != confirmPassword) {
-      return res.status(400).json({ error: "Passwords don't match" });
+    if (!fullName || !email || !password) {
+      return res.status(400).json({ error: "All Fields are required" });
     }
-    const user = await User.findOne({ username });
+    if(password.length < 6){
+      return res.status(400).json({ error: "Password must be at least 6 characters" });
+    }
+    // check if emailis valid: regex
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: "Invalid email format" });
+    }
+
+
+    const user = await User.findOne({ email });
     if (user) {
-      res.status(400).json({ error: "User Already exists" });
+      return res.status(400).json({ error: "Email already exists" });
     }
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
-    const boyProfilePic = `https://avatar.iran.liara.run/public/boy?username=${username}`;
-    const girlProfilePic = `https://avatar.iran.liara.run/public/girl?username=${username}`;
+    // const boyProfilePic = `https://avatar.iran.liara.run/public/boy?username=${username}`;
+    // const girlProfilePic = `https://avatar.iran.liara.run/public/girl?username=${username}`;
     const newUser = new User({
       fullName,
-      username,
+      email,
       password: hashedPassword,
-      gender,
-      profilePic: gender === "male" ? boyProfilePic : girlProfilePic,
+    
     });
     if (newUser) {
         generateTokenAndSetCookie(newUser._id, res);
@@ -29,7 +39,7 @@ export const signup = async (req, res) => {
       res.status(201).json({
         _id: newUser._id,
         fullName: newUser.fullName,
-        username: newUser.username,
+        email: newUser.email,
         profilePic: newUser.profilePic,
       });
     } else{
