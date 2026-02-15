@@ -34,8 +34,9 @@ const {fullName,email, password} = req.body;
     
     });
     if (newUser) {
-        generateTokenAndSetCookie(newUser._id, res);
-      await newUser.save();
+        const savedUser = await newUser.save();
+
+        generateTokenAndSetCookie(savedUser._id, res);
       res.status(201).json({
         _id: newUser._id,
         fullName: newUser.fullName,
