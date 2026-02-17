@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { ENV } from "../lib/env";
+import { ENV } from "../lib/env.js";
 const generateTokenAndSetCookie = (userId, res)=>{
     const token = jwt.sign({userId}, ENV.JWT_SECRET, {
         expiresIn: "15d",
