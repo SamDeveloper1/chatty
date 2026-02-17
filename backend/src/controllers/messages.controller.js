@@ -1,49 +1,90 @@
-import Conversation from "../models/conversation.model.js";
 import Message from "../models/message.model.js";
+import User from "../models/user.model.js";
+import cloudinary from "../lib/cloudinary.js";
 
-export const sendMessage = async (req,res)=>{
-    const {message} = req.body;
-    const {id: receiverId} = req.params;
+export const getAllContacts = async (req, res) => {
+  try {
+    const loggedInUser = req.user._id;
+    const filteredUsers = await User.find({
+      _id: { $ne: loggedInUser },
+    }).select("-password");
+    res.status(200).json(filteredUsers);
+  } catch (error) {
+    console.log("Error in getAllContacts controller:", error.message);
+    res.status(500).json({ error: "Internal Server error" });
+  }
+};
+export const getMessagesByUserId = async (req, res) => {
+  try {
+    const myId = req.user._id;
+    const { id: userToChatId } = req.params;
+    const messages = await Message.find({
+      $or: [
+        { senderId: myId, receiverId: userToChatId },
+        { senderId: userToChatId, receiverId: myId },
+      ],
+    });
+    res.status(200).json(messages);
+  } catch (error) {
+    console.log("Error in getMessagesByUserId controller", error.message);
+    res.status(500).json({ error: "Internal Server error" });
+  }
+};
+export const sendMessage = async (req, res) => {
+  try {
+    const { text, image } = req.body;
+    const { id: receiverId } = req.params;
     const senderId = req.user._id;
-    let conversation = await Conversation.findOne({
-        participants: {$all: [senderId, receiverId]}
-    })
-    if(!conversation){
-        conversation = await Conversation.create({
-            participants: [senderId,receiverId]
-        })
-    };
+    if (!text && !image) {
+      return res.status(400).json({ message: "Text or image is required." });
+    }
+    if (senderId.equals(receiverId)) {
+      return res
+        .status(400)
+        .json({ message: "Cannot send messages to yourself." });
+    }
+    const receiverExists = await User.exists({ _id: receiverId });
+    if (!receiverExists) {
+      return res.status(404).json({ message: "Receiver not found." });
+    }
+
+    let imageUrl;
+    if (image) {
+      const uploadResponse = await cloudinary.uploader.upload(image);
+      imageUrl = uploadResponse.secure_url;
+    }
     const newMessage = new Message({
-        senderId,
-        receiverId,
-        message
-    })
-    if(newMessage){
-         conversation.messages.push(newMessage._id)
-    }
-    // await conversation.save();
-    // await newMessage.save();
-    await Promise.all([conversation.save(),newMessage.save()]);
+      senderId,
+      receiverId,
+      text,
+      image: imageUrl,
+    });
+    await newMessage.save();
     res.status(201).json(newMessage);
-}
-export const getMessages  = async(req,res)=>{
-    try {
-     const {id: userToChatId} = req.params;
-     const senderId = req.user._id;
-     const conversation = await Conversation.findOne({
-        participants: {$all: [senderId, userToChatId]}
-     }).populate("messages");
-     if(!conversation){
-        return res.status(200).json([])
-     }
-     const messages = conversation.messages;
-     res.status(200).json(messages);
-
-        
-    } catch (error) {
-        console.log("Error in Get messages Controller",error.message);
-        res.status(500).json("Internal Server error");
-
-        
-    }
-}
+  } catch (error) {
+    console.log("Error in sendMessage controller", error.message);
+    res.status(500).json({ error: "Internal Server error" });
+  }
+};
+export const getChatPartners = async (req, res) => {
+  try {
+    const loggedInUser = req.user._id;
+    const messages = await Message.find({
+      $or: [{ senderId: loggedInUser }, { receiverId: loggedInUser }],
+    });
+    const chatPartnersId = [
+      ...new Set(
+        messages.map((msg) =>
+          msg.senderId.toString() === loggedInUser.toString()
+            ? msg.receiverId.toString()
+            : msg.senderId.toString(),
+        ),
+      ),
+    ];
+    const chatPartners = await User.find({_id: {$in: chatPartnersId}}).select("-password");
+    res.status(200).json(chatPartners);
+  } catch (error) {
+    console.log("Error in getChatPartners controller", error.message);
+    res.status(500).json({ error: "Internal Server error" });
+  }
+};
