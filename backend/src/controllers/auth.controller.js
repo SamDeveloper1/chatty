@@ -1,24 +1,26 @@
 import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";
 import generateTokenAndSetCookie from "../utils/generateToken.js";
-import {sendWelcomeEmail} from "../emails/emailHandlers.js";
+import { sendWelcomeEmail } from "../emails/emailHandlers.js";
 import { ENV } from "../lib/env.js";
+import cloudinary from "../lib/cloudinary.js";
 export const signup = async (req, res) => {
-const {fullName,email, password} = req.body;
+  const { fullName, email, password } = req.body;
 
   try {
     if (!fullName || !email || !password) {
       return res.status(400).json({ error: "All Fields are required" });
     }
-    if(password.length < 6){
-      return res.status(400).json({ error: "Password must be at least 6 characters" });
+    if (password.length < 6) {
+      return res
+        .status(400)
+        .json({ error: "Password must be at least 6 characters" });
     }
     // check if emailis valid: regex
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return res.status(400).json({ message: "Invalid email format" });
     }
-
 
     const user = await User.findOne({ email });
     if (user) {
@@ -32,12 +34,11 @@ const {fullName,email, password} = req.body;
       fullName,
       email,
       password: hashedPassword,
-    
     });
     if (newUser) {
-        const savedUser = await newUser.save();
+      const savedUser = await newUser.save();
 
-        generateTokenAndSetCookie(savedUser._id, res);
+      generateTokenAndSetCookie(savedUser._id, res);
       res.status(201).json({
         _id: newUser._id,
         fullName: newUser.fullName,
@@ -45,54 +46,73 @@ const {fullName,email, password} = req.body;
         profilePic: newUser.profilePic,
       });
       try {
-        await sendWelcomeEmail(savedUser.email,savedUser.fullName,ENV.CLIENT_URL);
-        
+        await sendWelcomeEmail(
+          savedUser.email,
+          savedUser.fullName,
+          ENV.CLIENT_URL,
+        );
       } catch (error) {
-        console.error("Failed to send welcome email:",error)
+        console.error("Failed to send welcome email:", error);
       }
-    } else{
-        res.status(400).json({error: "Invalid user data"})
+    } else {
+      res.status(400).json({ error: "Invalid user data" });
     }
   } catch (error) {
     console.log("Error in signup controller", error.message);
     res.status(500).json({ error: "Internal Server error" });
   }
 };
-export const login = async(req, res) => {
-  const {email, password} = req.body;
-    if(!email || !password){
-      return res.status(400).json({message: "Email and password are required"});
-    }
+export const login = async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(400).json({ message: "Email and password are required" });
+  }
   try {
-    
-    const user = await User.findOne({email});
-    if(!user){
-      return res.status(400).json({error: "Invalid Credentials"})
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ error: "Invalid Credentials" });
     }
     const isPasswordCorrect = await bcrypt.compare(password, user?.password);
-    if(!isPasswordCorrect){
-      return res.status(400).json({error: "Invalid Credentials"})
+    if (!isPasswordCorrect) {
+      return res.status(400).json({ error: "Invalid Credentials" });
     }
     generateTokenAndSetCookie(user._id, res);
     res.status(200).json({
       _id: user._id,
       fullName: user.fullName,
       email: user.email,
-      profilePic: user.profilePic
+      profilePic: user.profilePic,
     });
   } catch (error) {
-    console.log("Error in login controller",error.message);
-    res.status(500).json({error: "Internal Server error"})
-    
+    console.log("Error in login controller", error.message);
+    res.status(500).json({ error: "Internal Server error" });
   }
 };
 export const logout = (req, res) => {
   try {
-    res.cookie("jwt","",{maxAge: 0});
-    res.status(200).json({message: "Logged out successfully"})
+    res.cookie("jwt", "", { maxAge: 0 });
+    res.status(200).json({ message: "Logged out successfully" });
   } catch (error) {
-    console.log("Error in Logout Controller",error.message);
-    res.status(500).json({error: "Internal server error"});
-    
+    console.log("Error in Logout Controller", error.message);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+export const updateProfile = async (req, res) => {
+  try {
+    const { profilePic } = req.body;
+    if (!profilePic) {
+      return res.status(404).json({ error: "Profile pic is required" });
+    }
+    const userId = req.user._id;
+    const uploadResponse = await cloudinary.uploader.upload(profilePic);
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { profilePic: uploadResponse.secure_url },
+      { new: true },
+    );
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    console.error("Error in update profile controller:", error.message);
+    res.status(500).json({ error: "Internal Server error" });
   }
 };
