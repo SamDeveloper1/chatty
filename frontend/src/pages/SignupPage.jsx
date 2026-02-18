@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useAuthStore } from '../store/useAuthStore.js'
+import {useAuthStore} from "../store/useAuthstore.js";
 import BorderAnimatedContainer from "../components/BorderAnimatedContainer"
 import {  LockIcon, MailIcon, MessageCircleIcon, UserIcon, LoaderIcon } from 'lucide-react';
 import {Link} from "react-router";
