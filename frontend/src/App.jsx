@@ -3,8 +3,11 @@ import { Route, Routes } from "react-router";
 import ChatPage from "./pages/ChatPage";
 import SignupPage from "./pages/SignupPage";
 import LoginPage from "./pages/LoginPage";
+import { useAuthStore } from "./store/useAuthstore";
 
 const App = () => {
+  const {authUser, isLoading, login} = useAuthStore();
+  
   return (
     <div className="min-h-screen bg-slate-900 relative flex items-center justify-center p-4 overflow-hidden">
       {/* DECORATORS - GRID BG & GLOW SHAPES */}
