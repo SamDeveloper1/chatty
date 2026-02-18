@@ -3,7 +3,7 @@ import { Navigate, Route, Routes } from "react-router";
 import ChatPage from "./pages/ChatPage";
 import SignupPage from "./pages/SignupPage";
 import LoginPage from "./pages/LoginPage";
-import { useAuthStore } from "./store/useAuthStore.js";
+import { useAuthStore } from "./store/useAuthstore";
 import { PageLoader } from "./components/PageLoader";
 import {Toaster} from "react-hot-toast"
 
@@ -21,17 +21,9 @@ const App = () => {
       <div className="absolute top-0 -left-4 size-96 bg-pink-500 opacity-20 blur-[100px]" />
       <div className="absolute bottom-0 -right-4 size-96 bg-cyan-500 opacity-20 blur-[100px]" />
       <Routes>
-        <Route
-          path="/"
-          element={authUser ? <ChatPage /> : <Navigate to={"/login"} />}
-        />
-        <Route 
-           path="/signup"
-          element={!authUser ? <SignupPage /> : <Navigate to={"/"}/>}></Route>
-        <Route
-          path="/login"
-          element={!authUser ? <LoginPage /> : <Navigate to={"/"} />}
-        ></Route>
+        <Route path="/" element={authUser ? <ChatPage /> : <Navigate to={"/login"} />} />
+        <Route path="/login" element={!authUser ? <LoginPage /> : <Navigate to={"/"} />} />
+        <Route path="/signup" element={!authUser ? <SignupPage /> : <Navigate to={"/"} />} />
       </Routes>
       <Toaster/>
     </div>
