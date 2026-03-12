@@ -16,7 +16,7 @@ const __dirname = path.resolve();
 const app = express();
 
 
-app.use(express.json())// to parse incoming requests with json payloads (from req.body)
+app.use(express.json({limit: "5mb"}))// to parse incoming requests with json payloads (from req.body)
 app.use(cookieParser());
 app.use(cors({origin: ENV.CLIENT_URL, credentials: true}));
 
