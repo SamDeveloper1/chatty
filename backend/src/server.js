@@ -8,12 +8,12 @@ import messageRoutes from "./routes/message.route.js";
 import userRoutes from "./routes/user.routes.js";
 import { ENV } from "./lib/env.js";
 import {connectDB} from "./lib/db.js";
+import { app, server } from "./lib/socket.js";
 
 const PORT = ENV.PORT || 3000;
 
 const __dirname = path.resolve();
 
-const app = express();
 
 
 app.use(express.json({limit: "5mb"}))// to parse incoming requests with json payloads (from req.body)
@@ -29,7 +29,7 @@ if(ENV.NODE_ENV==="production"){
         res.sendFile(path.join(__dirname,"../frontend","dist","index.html"))
     })
 }
-app.listen(PORT, ()=>{
+server.listen(PORT, ()=>{
     console.log(`Server running on port ${PORT}`);
     connectDB();
 })
