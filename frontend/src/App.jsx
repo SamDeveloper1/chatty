@@ -6,7 +6,6 @@ import LoginPage from "./pages/LoginPage";
 import {useAuthStore} from "../src/store/useAuthStore"
 import { PageLoader } from "./components/PageLoader";
 import {Toaster} from "react-hot-toast"
-import { useAuthStore } from "./store/useAuthStore";
 
 const App = () => {
   const { authUser, isCheckingAuth, checkAuth } = useAuthStore();
