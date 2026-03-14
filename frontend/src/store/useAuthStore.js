@@ -78,13 +78,19 @@ export const useAuthStore = create((set, get) => ({
   },
   connectSocket: () => {
     const { authUser } = get();
-    if (!authUser || get().socket?.connected) return;
+    if (!authUser) return;
+    const existingSocket = get().socket;
+    if (existingSocket) {
+      existingSocket.disconnect();
+    }
+ 
+
     const socket = io(BASE_URL, {
-      transports: ["websocket", "polling"],
       withCredentials: true,
+      transports: ["websocket", "polling"],
+
 
     });
-    socket.connect();
     set({ socket });
 
     socket.on("getOnlineUsers", (userIds) => {
@@ -92,6 +98,10 @@ export const useAuthStore = create((set, get) => ({
     });
   },
   disconnectSocket: () => {
-    if (get().socket?.connected) get().socket.disconnect();
+    const socket = get().socket;
+    if (socket) {
+      socket.disconnect();
+      set({ socket: null }); // ✅ clear from state after disconnecting
+    }
   },
 }));
