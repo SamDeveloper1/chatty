@@ -14,7 +14,7 @@ const PORT = ENV.PORT || 3000;
 
 app.use(express.json({ limit: "5mb" })); // to parse incoming requests with json payloads (from req.body)
 app.use(cookieParser());
-app.use(cors({ origin:["https://streamchat-lime.vercel.app", "http://localhost:5173"], credentials: true }));
+app.use(cors({ origin:[ ENV.CLIENT_URL, "http://localhost:5173"], credentials: true }));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
