@@ -1,62 +1,78 @@
 import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import ChatHeader from "./ChatHeader";
 import NoChatHistoryPlaceholder from "./NoChatHistoryPlaceholder";
 import MessagesLoadingSkeleton from "./MessagesLoadingSkeleton";
 import { MessageInput } from "./MessageInput";
+import MessageBubble from "./MessageBubble";
+
 const ChatContainer = () => {
-  const { messages, selectedUser, getMessagesByUserId, isMessagesLoading, subscribeToMessages, unsubscribeToMessages } = useChatStore();
+  const {
+    messages,
+    selectedUser,
+    getMessagesByUserId,
+    isMessagesLoading,
+    subscribeToMessages,
+    unsubscribeToMessages,
+    isTyping,
+    markAsRead,
+    
+  } = useChatStore();
+
   const { authUser } = useAuthStore();
   const messageEndRef = useRef(null);
+
   useEffect(() => {
-    getMessagesByUserId(selectedUser._id);
-    subscribeToMessages();
+    getMessagesByUserId(selectedUser._id).then((messages) => {
+      subscribeToMessages();
+      markAsRead();
 
-    return ()=> unsubscribeToMessages();
+     
+    });
 
-  }, [selectedUser, getMessagesByUserId, subscribeToMessages, unsubscribeToMessages]);
-useEffect(()=>{
-  if(messageEndRef.current){
-    messageEndRef.current.scrollIntoView({behavior: "smooth"});
-  }
-},[messages])
+    return () => unsubscribeToMessages();
+  }, [selectedUser._id]);
+
+  useEffect(() => {
+    if (messageEndRef.current) {
+      messageEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, isTyping]);
+
+  
+
   return (
     <>
       <ChatHeader />
+
       <div className="flex-1 px-6 overflow-y-auto py-8">
         {messages.length > 0 && !isMessagesLoading ? (
           <div className="max-w-3xl mx-auto space-y-6">
+
             {messages.map((msg) => (
-              <div
-                key={msg._id}
-                className={`chat ${msg.senderId === authUser._id ? "chat-end" : "chat-start"}`}
-              >
-                <div
-                  className={`chat-bubble relative ${msg.senderId === authUser._id ? "bg-cyan-600 text-white" : "bg-slate-800 text-slate-200"}`
-            }
-                >
-                  {msg.image && (
-                    <img src={msg.image} alt="Shared" className="rounded-lg h-48 object-cover"/>
-                  )}
-                  {msg.text && (
-                    <p className="mt-2">{msg.text}</p>
-                  )}
-                  <p className="text-sm mt-1 opacity-75 flex items-center gap-1">
-                    {new Date(msg.createdAt).toLocaleTimeString(undefined, {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })
-                    }                  </p>
+              <MessageBubble key={msg._id} msg={msg} />
+            ))}
+
+            {isTyping && (
+              <div className="chat chat-start">
+                <div className="chat-bubble bg-slate-800 text-slate-200 flex items-center gap-1 py-3 px-4">
+                  <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                  <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                  <span className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
                 </div>
               </div>
-            ))}
-            <div ref={messageEndRef}/>
+            )}
+
+            <div ref={messageEndRef} />
           </div>
-        ) : isMessagesLoading ? (<MessagesLoadingSkeleton />) : (
+        ) : isMessagesLoading ? (
+          <MessagesLoadingSkeleton />
+        ) : (
           <NoChatHistoryPlaceholder name={selectedUser.fullName} />
         )}
       </div>
+
       <MessageInput/>
     </>
   );
