@@ -217,39 +217,6 @@ NODE_ENV=production npm start
 - 🚦 **Arcjet** rate-limits all API endpoints to prevent abuse
 - 🔒 Protected routes on both client and server
 
----
 
-## 🧑‍💻 Author
 
-<div align="center">
 
-**Built with 💜 and a lot of ☕ by [Your Name](https://github.com/yourusername)**
-
-<br/>
-
-[![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/yourusername)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/yourprofile)
-[![Portfolio](https://img.shields.io/badge/Portfolio-FF5722?style=for-the-badge&logo=google-chrome&logoColor=white)](https://yourportfolio.com)
-
-</div>
-
----
-
-## ⭐ Show Some Love
-
-If you found this project useful or impressive, a **star** goes a long way! ⭐
-
-```
-It took blood, sweat, and tears to build this.
-A star takes 1 second — and means the world. 🙏
-```
-
-<div align="center">
-
-[![Star History](https://img.shields.io/github/stars/yourusername/streamchat?style=social)](https://github.com/yourusername/streamchat)
-
-<br/>
-
-*Made with ❤️ — open to feedback, contributions, and coffee chats!*
-
-</div>
