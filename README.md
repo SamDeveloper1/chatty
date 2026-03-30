@@ -40,7 +40,7 @@
 ## 🖼️ App Preview
 
 <div align="center">
-  <img src="/frontend/public/readme image.png" alt="StreamChat Preview" width="90%" style="border-radius: 12px;" />
+  <img src="/frontend/public/readme image.png" alt="StreamChat Preview" width="80%" hieght="75%" style="border-radius: 12px;" />
 </div>
 
 ---
