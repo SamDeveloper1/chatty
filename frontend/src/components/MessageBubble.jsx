@@ -64,19 +64,19 @@ const MessageBubble = ({ msg }) => {
           - Their messages (chat-start): picker aligns to the left        */}
       <div
         className={`
-          absolute -top-10 z-10
+          absolute -top-8 sm:-top-10 z-10
           ${isMine ? "right-0" : "left-0"}
           hidden group-hover:flex
-          items-center gap-1
+          items-center gap-0.5 sm:gap-1
           bg-slate-700 border border-slate-600
-          rounded-full px-2 py-1 shadow-lg
+          rounded-full px-1.5 sm:px-2 py-0.5 sm:py-1 shadow-lg
         `}
       >
         {REACTION_EMOJIS.map((emoji) => (
           <button
             key={emoji}
             onClick={() => handleReact(emoji)}
-            className="text-lg hover:scale-125 transition-transform duration-100 cursor-pointer"
+            className="text-base sm:text-lg hover:scale-125 transition-transform duration-100 cursor-pointer"
             title={emoji}
           >
             {emoji}
@@ -96,13 +96,13 @@ const MessageBubble = ({ msg }) => {
           <img
             src={msg.image}
             alt="Shared"
-            className="rounded-lg h-48 object-cover"
+            className="rounded-lg w-full max-w-[200px] sm:max-w-[250px] md:max-w-[300px] h-auto max-h-48 object-cover"
           />
         )}
-        {msg.text && <p className="mt-2">{msg.text}</p>}
+        {msg.text && <p className="mt-1 sm:mt-2 text-sm sm:text-base break-words">{msg.text}</p>}
 
         {/* Time + read receipt ticks (Feature 2) */}
-        <p className="text-sm mt-1 opacity-75 flex items-center gap-1">
+        <p className="text-xs sm:text-sm mt-1 opacity-75 flex items-center gap-1">
           {new Date(msg.createdAt).toLocaleTimeString(undefined, {
             hour: "2-digit",
             minute: "2-digit",

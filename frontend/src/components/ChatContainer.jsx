@@ -46,9 +46,9 @@ const ChatContainer = () => {
     <>
       <ChatHeader />
 
-      <div className="flex-1 px-6 overflow-y-auto py-8">
+      <div className="flex-1 px-3 sm:px-4 md:px-6 overflow-y-auto py-4 sm:py-6 md:py-8">
         {messages.length > 0 && !isMessagesLoading ? (
-          <div className="max-w-3xl mx-auto space-y-6">
+          <div className="max-w-3xl mx-auto space-y-3 sm:space-y-4 md:space-y-6">
 
             {messages.map((msg) => (
               <MessageBubble key={msg._id} msg={msg} />
